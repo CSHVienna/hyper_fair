@@ -1,2 +1,2 @@
 # hyper_fair
-A python package to generate fair rankings and evaluate existing ones
+A Python package to generate and evaluate rankings under fairness constraints
