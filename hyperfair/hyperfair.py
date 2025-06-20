@@ -1,6 +1,6 @@
-from mc_algo import compute_adjusted_alpha, multiple_test_measure, get_pval_cached, re_rank, GeneratedData
+from hyperfair.mc_algo import compute_adjusted_alpha, multiple_test_measure, get_pval_cached, re_rank, GeneratedData
 import numpy as np
-from plotting import plot_ranking
+from hyperfair.plotting import plot_ranking
 import matplotlib.pyplot as plt
 
 
