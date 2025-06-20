@@ -1,21 +1,28 @@
 <p align="left">
   <img src="logo.png" alt="Package Logo" width="100" style="vertical-align: middle; margin-right: 10px;"/>
-  <span style="font-size: 2em; vertical-align: middle;"><strong>hyperFA*IR</strong></span>
-</p>
-<p align="left">
-  <span style="font-size: 1.5em; vertical-align: top;"><strong>A hypergeometric approach to fair rankings with finite candidate
-pool
-</strong></span>
 </p>
 
----
-A Python library for generating, evaluating, and improving rankings under fairness constraints.
+# hyperFA*IR: A Python library for generating, evaluating, and improving rankings under fairness constraints.
+
+This package is tied to the paper [**hyperFA*IR: A hypergeometric approach to fair rankings with finite candidate pool**](https://arxiv.org/abs/2506.14349v1), which was recently accepted for publication in the Proceedings of the 2025 ACM Conference on Fairness, Accountability and Transparency (FAccT'25).
+
+[![PyPI](https://img.shields.io/pypi/v/hyperfair)](https://pypi.org/project/hyperfair/)
+[![License](https://img.shields.io/github/license/CSHVienna/hyper_fair)](https://github.com/CSHVienna/hyper_fair/blob/main/LICENSE)
 
 ## Overview
 
 **hyperFA*IR** is a rigorous framework for researchers and practitioners who care about fairness in ranked outcomes. Leveraging hypergeometric tests and Monte Carlo methods, hyperFA*IR enables you to rigorously assess, visualize, and enforce fairness in any ranking scenario with a finite candidate pool.
 
 Whether you are working with admissions, hiring, recommendations, or any ranked selection process, hyperFA*IR provides the tools you need to ensure equitable representation and transparency.
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Installation](#installation)
+3. [Quick Start](#start)
+4. [How to use the library](#how-to)
+5. [Comparison with FA*IR](#fair)
+6. [Bugs and Feedback](#bugs)
 
 ## Features
 
@@ -29,7 +36,13 @@ Whether you are working with admissions, hiring, recommendations, or any ranked 
 
 ## Installation
 
-Clone the repository and install dependencies:
+You can directly install the package using pip:
+
+```sh
+pip install hyperfair
+```
+
+Or you can clone the repository and install the dependencies:
 
 ```sh
 git clone https://github.com/CSHVienna/hyper_fair.git
@@ -37,14 +50,14 @@ cd hyper_fair
 pip install -r requirements.txt
 ```
 
-## Quick Start
+## Quick Start<a name="start">
 
 Get started with a single line: compute the p-value for fairness in your ranking!
 
 Suppose you have a ranking where `1` indicates a protected candidate and `0` an unprotected candidate. To test whether the protected group is under-represented in the top-$k$ positions, simply run:
 
 ```python
-from hyperfair import measure_fairness_multiple_points
+from hyperfair.hyperfair import measure_fairness_multiple_points
 
 pvalue, _ = measure_fairness_multiple_points(
     x_seq=[0, 0, 0, 0, 1, 0, 1, 1, 1, 1],  # 1=protected, 0=unprotected
@@ -58,11 +71,7 @@ print(f"P-value: {pvalue:.3f}")
 
 This tells you how likely it is to observe as few protected candidates in the top $k$ as you did, under random selection. A small p-value (e.g., < 0.05) means the ranking is likely unfair to the protected group.
 
----
-
-
-
-## How to use the library
+## How to use the library<a name="how-to">
 
 ### Loading data from a Pandas DataFrame
 
@@ -84,7 +93,7 @@ Here, `SES` (socioeconomic status) is the protected attribute, and `Score` is th
 To load and process this data, use:
 
 ```python
-from code.data_loader import load_data_from_pandas_df
+from hyperfair.data_loader import load_data_from_pandas_df
 import pandas as pd
 
 df = pd.read_csv(CSV_PATH)
@@ -120,7 +129,7 @@ To do this, use the [`measure_fairness_multiple_points`](code/hyperfair.py) func
 Example usage:
 
 ```python
-from hyperfair import measure_fairness_multiple_points
+from hyperfair.hyperfair import measure_fairness_multiple_points
 
 pvalue, generatedData = measure_fairness_multiple_points(
     x_seq=ranking,      # binary array: 1 if protected, 0 otherwise, ordered by rank
@@ -138,11 +147,11 @@ The function returns the p-value for the fairness test and a `generatedData` obj
 
 For a more detailed guide and practical examples, see [example.ipynb](example.ipynb).
 
-## Comparison with FA*IR
+## Comparison with FA*IR<a name="fair">
 
 Finally, in the paper we mention that our method to compute the adjusted parameter for multiple tests is more efficient than the one implemented in [FA*IR](https://arxiv.org/abs/1706.06368) because it doesn't rely on the linear search of the optimal parameter.
 
-To support our claim, we show the differences in speed (right plot below) between our method (in red) and the method implemented in the paper by Zehlike et al.. In particular, we show the elapsed time (in seconds) using a log-log plot, as a function of the length of the ranking.
+To support our claim, we show the differences in speed (right plot below) between our method (in red) and the method implemented in the [companion repository](https://github.com/fair-search/fairsearch-fair-python) of the paper by Zehlike et al.. In particular, we show the elapsed time (in seconds) using a log-log plot, as a function of the length of the ranking.
 For our Monte Carlo algorithm, we fixed the number of experiments to $100000$.
 
 ![Logo](comparison.png)
@@ -150,3 +159,7 @@ For our Monte Carlo algorithm, we fixed the number of experiments to $100000$.
 For small `n`, our method is slightly slower. However, this is also the scenario in which our method is significantly more accurate. When `n` increases, it is clear that our method is much more efficient (remember that the time is in log-scale!). 
 
 For `n=2000` (last point), the difference is substantial: the elapsed time for Zehlike's algorithm is $2816$ seconds, while our algorithm only takes around $37$ seconds to run.
+
+## Bugs and Feedback<a name="bugs">
+
+Please report any bugs that you find or any other feedback directly to [cartiervandissel@csh.ac.at](mailto:cartiervandissel@csh.ac.at). We welcome all changes, big or small. Thank you!
