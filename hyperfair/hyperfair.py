@@ -1,10 +1,10 @@
 from hyperfair.mc_algo import compute_adjusted_alpha, multiple_test_measure, get_pval_cached, re_rank, GeneratedData
 import numpy as np
-from hyperfair.plotting import plot_ranking
+from hyperfair.plotting import plot_ranking, plotly_html
 import matplotlib.pyplot as plt
 
 
-def measure_fairness_single_point(x_seq, k, omega=1, test_side='lower', alpha=None, verbose=False, plot=False):
+def measure_fairness_single_point(x_seq, k, omega=1, test_side='lower', alpha=None, verbose=False, plot=False, ax=None):
     """
     Evaluates fairness at a single cutoff point in a ranked sequence.
     This function computes the p-value for the observed number of protected group members
@@ -20,6 +20,7 @@ def measure_fairness_single_point(x_seq, k, omega=1, test_side='lower', alpha=No
         alpha (float, optional): Significance level for hypothesis testing. If None, no hypothesis test is performed.
         verbose (bool, optional): If True, prints detailed output about the test result. Default is False.
         plot (bool, optional): If True, plots the ranking and highlights the cutoff position. Default is False.
+        ax (matplotlib.axes.Axes, optional): Matplotlib Axes object to plot on. If None, a new figure and axes are created.
 
     Returns:
         float: The computed p-value for the observed number of protected group members in the top-k positions.
@@ -32,6 +33,7 @@ def measure_fairness_single_point(x_seq, k, omega=1, test_side='lower', alpha=No
     assert alpha is None or (isinstance(alpha, float) and 0 < alpha < 1), "alpha must be a float between 0 and 1"
     assert isinstance(verbose, bool), "verbose must be a boolean"
     assert isinstance(plot, bool), "plot must be a boolean"
+    assert ax is None or isinstance(ax, plt.Axes), "ax must be a matplotlib Axes object or None"
 
     n = len(x_seq)
     n_protected = np.sum(x_seq)
@@ -47,23 +49,23 @@ def measure_fairness_single_point(x_seq, k, omega=1, test_side='lower', alpha=No
             print(f"p-value at position {k} is {pval:.4f}")
 
     if plot:
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(7, 4), dpi=300)
         if alpha is not None:
-            plot_ranking(x_seq, alpha, test_side, omega=omega, ax=None)
+            plot_ranking(x_seq, alpha, test_side, omega=omega, ax=ax)
             if k!= n:
-                plt.plot([k/n, k/n], [0, 1], color='red', linestyle='--', label='position k')
-            plt.legend()
-            plt.show()
+                ax.plot([k/n, k/n], [0, 1], color='red', linestyle='--', label='position k')
+            ax.legend()
         else:
-            plot_ranking(x_seq, None, None, omega=omega, ax=None)
+            plot_ranking(x_seq, None, None, omega=omega, ax=ax)
             if k!= n:
-                plt.plot([k/n, k/n], [0, 1], color='red', linestyle='--', label='position k')
-            plt.legend()
-            plt.show()
+                ax.plot([k/n, k/n], [0, 1], color='red', linestyle='--', label='position k')
+            ax.legend()
 
     return pval
 
 
-def measure_fairness_multiple_points(x_seq, k, test_side='lower', alpha=None, n_exp=10000, omega=1, quantile='analytical', cache={}, verbose=False, plot=False, seed=None, generatedData=None):
+def measure_fairness_multiple_points(x_seq, k, test_side='lower', alpha=None, n_exp=10000, omega=1, quantile='analytical', cache={}, verbose=False, plot=False, seed=None, generatedData=None, ax=None):
     """
     Measures the fairness of a sequence at multiple points using statistical hypothesis testing.
     This function evaluates the fairness of a given sequence `x_seq` at all subsets [1:j] for j in [1, k].
@@ -85,6 +87,9 @@ def measure_fairness_multiple_points(x_seq, k, test_side='lower', alpha=None, n_
         seed (int, optional): Random seed for reproducibility. Default is None.
         generatedData (GeneratedData, optional): Precomputed data for efficiency. Default is None.
         If provided, it should match the input parameters.
+        ax (matplotlib.axes.Axes, optional): Matplotlib Axes object to plot on. 
+            If None, a new figure and axes are created.
+            If a dictionary is provided, it should contain keys 'show_boundaries' (bool) and 'file_path' (str) for Plotly plotting. This creates an HTML output instead of a matplotlib plot.
 
     Returns:
         fairness_score (float): The computed p-value or fairness score for the multiple tests.
@@ -103,6 +108,7 @@ def measure_fairness_multiple_points(x_seq, k, test_side='lower', alpha=None, n_
     assert isinstance(plot, bool), "plot must be a boolean"
     assert seed is None or isinstance(seed, int), "seed must be an integer or None"
     assert generatedData is None or isinstance(generatedData, GeneratedData), "generatedData must be an instance of GeneratedData or None"
+    assert ax is None or isinstance(ax, plt.Axes) or isinstance(ax, dict), "ax must be a matplotlib Axes object or None"
     
     n = len(x_seq)
     n_protected = int(np.sum(x_seq))
@@ -124,24 +130,27 @@ def measure_fairness_multiple_points(x_seq, k, test_side='lower', alpha=None, n_
             print(f"p-value is {fairness_score:.4f}")
 
     if plot:
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(7, 4), dpi=300)
         if alpha is not None:
             adjusted_alpha = output_dict[k]['adjusted alpha']
-            plot_ranking(x_seq, adjusted_alpha, test_side, omega=omega, ax=None)
-            if k != len(x_seq):
-                plt.plot([k/len(x_seq), k/len(x_seq)], [0, 1], color='red', linestyle='--', label='position k')
-            plt.legend()
-            plt.show()
+            if type(ax) is dict:
+                plotly_html(x_seq, alpha=adjusted_alpha, ci=test_side, omega=omega, show_boundaries=ax['show_boundaries'], output_html=ax['file_path'], k=k)
+            else:
+                plot_ranking(x_seq, adjusted_alpha, test_side, omega=omega, ax=ax)
+                if k != len(x_seq):
+                    ax.plot([k/len(x_seq), k/len(x_seq)], [0, 1], color='red', linestyle='--', label='position k')
+                ax.legend()
         else:
-            plot_ranking(x_seq, None, None, omega=omega, ax=None)
+            plot_ranking(x_seq, None, None, omega=omega, ax=ax)
             if k != len(x_seq):
-                plt.plot([k/len(x_seq), k/len(x_seq)], [0, 1], color='red', linestyle='--', label='position k')
-            plt.legend()
-            plt.show()
+                ax.plot([k/len(x_seq), k/len(x_seq)], [0, 1], color='red', linestyle='--', label='position k')
+            ax.legend()
 
     return fairness_score, generatedData
 
 
-def adjust_ranking(x_seq, ids, k, alpha, omega=1, test_side='lower', n_exp=10000, quantile='analytical', cache={}, plot=False, seed=None, generatedData=None):
+def adjust_ranking(x_seq, ids, k, alpha, omega=1, test_side='lower', n_exp=10000, quantile='analytical', cache={}, plot=False, seed=None, generatedData=None, ax=None):
     """
     Adjusts the ranking of a sequence based on the fairness measure.
     This function computes the adjusted alpha for the given sequence and re-ranks it accordingly.
@@ -161,6 +170,7 @@ def adjust_ranking(x_seq, ids, k, alpha, omega=1, test_side='lower', n_exp=10000
         seed (int, optional): Random seed for reproducibility. Default is None.
         generatedData (GeneratedData, optional): Precomputed data for efficiency. Default is None.
         If provided, it should match the input parameters.
+        ax (matplotlib.axes.Axes, optional): Matplotlib Axes object to plot on. If None, a new figure and axes are created.
 
     Returns:
         adjusted_alpha (float): The adjusted alpha value for the ranking.
@@ -180,6 +190,7 @@ def adjust_ranking(x_seq, ids, k, alpha, omega=1, test_side='lower', n_exp=10000
     assert isinstance(plot, bool), "plot must be a boolean"
     assert seed is None or isinstance(seed, int), "seed must be an integer or None"
     assert generatedData is None or isinstance(generatedData, GeneratedData), "generatedData must be an instance of GeneratedData or None"
+    assert ax is None or isinstance(ax, plt.Axes), "ax must be a matplotlib Axes object or None"
     
     n = len(x_seq)
     n_protected = int(np.sum(x_seq))
@@ -192,15 +203,16 @@ def adjust_ranking(x_seq, ids, k, alpha, omega=1, test_side='lower', n_exp=10000
     corrected_x, corrected_ids = re_rank(x_seq, ids, adjusted_alpha, k, test_side=test_side, omega=omega)
 
     if plot:
-        plot_ranking(x_seq, adjusted_alpha, test_side, omega=omega, ax=None)
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(7, 4), dpi=300)
+        plot_ranking(x_seq, adjusted_alpha, test_side, omega=omega, ax=ax)
         corrected_proportions = np.cumsum(corrected_x) / np.arange(1, n+1)
         proportions = np.cumsum(x_seq) / np.arange(1, n+1)
         if not all(x_seq==corrected_x):
-            plt.plot(np.arange(1/n,1+1/n,1/n), corrected_proportions, "#de5805", label = 'Corrected ranking')
-        plt.plot(np.arange(1/n,1+1/n,1/n), proportions, '#018571')
+            ax.plot(np.arange(1/n,1+1/n,1/n), corrected_proportions, "#de5805", label = 'Corrected ranking')
+        ax.plot(np.arange(1/n,1+1/n,1/n), proportions, '#018571')
         if k != len(x_seq):
-            plt.plot([k/len(x_seq), k/len(x_seq)], [0, 1], color='red', linestyle='--', label='position k')
-        plt.legend()
-        plt.show()
+            ax.plot([k/len(x_seq), k/len(x_seq)], [0, 1], color='red', linestyle='--', label='position k')
+        ax.legend()
 
     return corrected_x, corrected_ids, generatedData

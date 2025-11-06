@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+import plotly.graph_objects as go
 
 
 def plot_ranking(ranking, alpha=None, ci=None, omega=1, ax=None):
@@ -134,3 +135,122 @@ def plot_only_ci(n, n_protected, alpha, ci, omega=1, ax=None):
     ax.fill_between(x_down,y_down_curve, 0, color = 'gray', linestyle = '-', edgecolor='black')
     ax.legend(loc='upper right', fontsize=9, frameon=True, fancybox=True, shadow=True)
     plt.rcParams.update({'font.size': 12})
+
+
+def plotly_html(ranking, alpha=None, ci=None, omega=1, show_boundaries=True, output_html=None, k=None):
+    """
+    Plots the cumulative proportion of protected candidates in a ranking using Plotly, along with confidence intervals and theoretical curves.
+    
+    Parameters:
+        ranking (np.ndarray or list): A binary array indicating the ranking of items (1 for protected group, 0 for unprotected).
+        alpha (float): Significance level for the confidence interval (e.g., 0.05 for 95% CI). Default is None, which means no CI is plotted.
+        ci (str): Type of confidence interval to plot:
+            - 'lower': Lower confidence bound.
+            - 'upper': Upper confidence bound.
+            - 'two-sided': Both lower and upper bounds.
+            - None: No confidence interval is plotted. This is the default.
+        omega (float, optional): Odds ratio for the noncentral hypergeometric distribution. If 1, uses the standard hypergeometric distribution.
+        show_boundaries (bool): Whether to show theoretical boundaries in the plot. Default is True.
+        output_html (str, optional): If provided, saves the plot as an HTML file with the given filename.
+        k (int, optional): If provided, highlights the top k candidates in the plot.
+    """
+
+    import plotly.graph_objects as go
+
+    assert isinstance(ranking, list) or (isinstance(ranking, np.ndarray) and ranking.ndim == 1), "ranking must be a 1D numpy array"
+    assert isinstance(alpha, (float, type(None))) or (isinstance(alpha, float) and 0 < alpha < 1), "alpha must be a float between 0 and 1 or None"
+    assert ci in ['lower', 'upper', 'two-sided', None], "ci must be one of ['lower', 'upper', 'two-sided', None]"
+    assert isinstance(omega, (int, float)) and omega > 0, "omega must be a positive number"
+    assert isinstance(show_boundaries, bool), "show_boundaries must be a boolean"
+    assert output_html is None or isinstance(output_html, str), "output_html must be a string or None"
+
+    n = len(ranking)
+    n_protected = np.sum(ranking)
+    proportions = np.cumsum(ranking) / np.arange(1, n+1)
+    p = proportions[-1]
+    x_up = np.arange(p,1+1/n,1/n)
+    y_up_curve = p/x_up
+    x_down = np.arange(1-p,1+1/n,1/n)
+    y_down_curve = 1-(1-p)/(x_down)
+    if ci == 'lower' and alpha:
+        ci_lower_hyp = [stats.nchypergeom_wallenius.ppf(alpha, n, n_protected, j, omega)/j for j in range(1,n+1)]
+        ci_upper_hyp = 1
+    elif ci == 'upper' and alpha:
+        ci_lower_hyp = 0
+        ci_upper_hyp = [stats.nchypergeom_wallenius.ppf(1-alpha, n, n_protected, j, omega)/j for j in range(1,n+1)]
+    elif ci == 'two-sided' and alpha:
+        ci_lower_hyp = [stats.nchypergeom_wallenius.ppf(alpha/2, n, n_protected, j, omega)/j for j in range(1,n+1)]
+        ci_upper_hyp = [stats.nchypergeom_wallenius.ppf(1-alpha/2, n, n_protected, j, omega)/j for j in range(1,n+1)]
+
+    assert k is None or (isinstance(k, int) and k > 0 and k <= n), "k must be a positive integer less than or equal to n or None"
+    
+    fig = go.Figure()
+    if ci is not None and alpha is not None:
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([np.arange(1, k + 1), np.arange(1, k + 1)[::-1]]),
+            y=np.concatenate([ci_lower_hyp[:k], ci_upper_hyp[:k][::-1]]),
+            fill='toself',
+            fillcolor='rgba(222, 143, 5, 0.5)',
+            line=dict(color='rgba(255,255,255,0)'),
+            name=f'{100*(1-alpha):.1f}% CI (up to k)'
+        ))
+    if show_boundaries:
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([x_up, x_up[::-1]]),
+            y=np.concatenate([y_up_curve, [1]*len(y_up_curve)]),
+            fill='toself',
+            fillcolor='rgba(128,128,128,0.3)',
+            line=dict(color='rgba(255,255,255,0)'),
+            name='Theoretical upper bound'
+        ))
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([x_down, x_down[::-1]]),
+            y=np.concatenate([y_down_curve, [0]*len(y_down_curve)]),
+            fill='toself',
+            fillcolor='rgba(128,128,128,0.3)',
+            line=dict(color='rgba(255,255,255,0)'),
+            name='Theoretical lower bound'
+        ))
+    fig.add_trace(go.Scatter(
+        x=np.arange(1, k + 1),
+        y=proportions[:k],
+        mode='lines+markers',
+        name='Empirical ranking (up to k)',
+        line=dict(color='rgba(44, 132, 113, 1)', width=6),
+        marker=dict(size=8)
+    ))
+    fig.add_trace(go.Scatter(
+        x=np.arange(k, n + 1),
+        y=proportions[k-1:],
+        mode='lines',
+        name='Empirical ranking (after k)',
+        line=dict(color='rgba(44, 132, 113, 1)', width=2)
+    ))
+    fig.add_trace(go.Scatter(
+        x=[1, n],
+        y=[p, p],
+        mode='lines',
+        line=dict(color='black', dash='dash'),
+        name='Total proportion'
+    ))
+
+    # Dynamically determine tick values based on n
+    if n <= 10:
+        tickvals = np.arange(1, n + 1)
+    elif n <= 20:
+        tickvals = np.arange(1, n + 1, 2)
+    else:
+        tickvals = np.linspace(1, n, 5, dtype=int)
+
+    fig.update_layout(
+        xaxis_title='Top k candidates',
+        yaxis_title='Proportion of protected candidates',
+        xaxis=dict(tickmode='array', tickvals=tickvals, ticktext=[f'{int(i)}' for i in tickvals]),
+        yaxis=dict(range=[0, 1]),
+        template='plotly_white',
+        font=dict(size=20)  # Increase font size
+    )
+    if output_html:
+        fig.write_html(output_html)
+    else:
+        fig.show()
