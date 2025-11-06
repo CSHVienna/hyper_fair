@@ -135,7 +135,7 @@ def measure_fairness_multiple_points(x_seq, k, test_side='lower', alpha=None, n_
         if alpha is not None:
             adjusted_alpha = output_dict[k]['adjusted alpha']
             if type(ax) is dict:
-                plotly_html(x_seq, alpha=adjusted_alpha, ci=test_side, omega=omega, show_boundaries=ax['show_boundaries'], output_html=ax['file_path'], k=k)
+                plotly_html(x_seq, alpha=adjusted_alpha, ci=test_side, omega=omega, show_boundaries=False, output_html=ax['file_path'], k=k)
             else:
                 plot_ranking(x_seq, adjusted_alpha, test_side, omega=omega, ax=ax)
                 if k != len(x_seq):

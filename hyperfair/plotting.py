@@ -137,7 +137,7 @@ def plot_only_ci(n, n_protected, alpha, ci, omega=1, ax=None):
     plt.rcParams.update({'font.size': 12})
 
 
-def plotly_html(ranking, alpha=None, ci=None, omega=1, show_boundaries=True, output_html=None, k=None):
+def plotly_html(ranking, alpha=None, ci=None, omega=1, show_boundaries=False, output_html=None, k=None):
     """
     Plots the cumulative proportion of protected candidates in a ranking using Plotly, along with confidence intervals and theoretical curves.
     
@@ -174,9 +174,9 @@ def plotly_html(ranking, alpha=None, ci=None, omega=1, show_boundaries=True, out
     y_down_curve = 1-(1-p)/(x_down)
     if ci == 'lower' and alpha:
         ci_lower_hyp = [stats.nchypergeom_wallenius.ppf(alpha, n, n_protected, j, omega)/j for j in range(1,n+1)]
-        ci_upper_hyp = 1
+        ci_upper_hyp = [1] * n
     elif ci == 'upper' and alpha:
-        ci_lower_hyp = 0
+        ci_lower_hyp = [0] * n
         ci_upper_hyp = [stats.nchypergeom_wallenius.ppf(1-alpha, n, n_protected, j, omega)/j for j in range(1,n+1)]
     elif ci == 'two-sided' and alpha:
         ci_lower_hyp = [stats.nchypergeom_wallenius.ppf(alpha/2, n, n_protected, j, omega)/j for j in range(1,n+1)]
