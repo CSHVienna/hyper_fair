@@ -97,7 +97,7 @@ def get_pval_cached(y, n, n_protected, k, test_side, cache, omega=1):
             else:
                 lower = stats.nchypergeom_wallenius.cdf(y, n, n_protected, k, omega)
                 upper = 1 - stats.nchypergeom_wallenius.cdf(y - 1, n, n_protected, k, omega)
-            val = 2 * min(lower, upper)
+            val = 2 * min(lower, upper, .5)
         cache[key] = val
         return val
     
