@@ -3,17 +3,33 @@
 </p>
 
 # hyperFA*IR: A Python library for generating, evaluating, and improving rankings under fairness constraints.
-
-This package is tied to the paper [**hyperFA*IR: A hypergeometric approach to fair rankings with finite candidate pool**](https://dl.acm.org/doi/10.1145/3715275.3732143), published in the Proceedings of the 2025 ACM Conference on Fairness, Accountability and Transparency (FAccT'25). This software is part of MAI-BIAS; a low-code toolkit for fairness analysis and mitigation, with an accompanying suite of coding tools. Our ecosystem operates in multidimensional and multi-attribute settings, and across multiple data modalities (like tabular data, images, text, graphs). Learn more [**here**](https://mammoth-eu.github.io/mammoth-commons/index.html).
-
+[![MAI_BIAS toolkit](https://img.shields.io/badge/MAI_BIAS-⚖️_AI_fairness_tool-white)](https://mammoth-eu.github.io/mammoth-commons/index.html)[![Integration tests](https://github.com/mammoth-eu/mammoth-commons/actions/workflows/integration.yml/badge.svg)](https://github.com/mammoth-eu/mammoth-commons/actions/workflows/integration.yml)
+![Coverage](./coverage-badge.svg)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
+[![Downloads](https://static.pepy.tech/badge/mai-bias)](https://pepy.tech/projects/mai-bias)
 [![PyPI](https://img.shields.io/pypi/v/hyperfair)](https://pypi.org/project/hyperfair/)
 [![License](https://img.shields.io/github/license/CSHVienna/hyper_fair)](https://github.com/CSHVienna/hyper_fair/blob/main/LICENSE)
 
-## Overview
+
+This package is tied to the paper [**hyperFA*IR: A hypergeometric approach to fair rankings with finite candidate pool**](https://dl.acm.org/doi/10.1145/3715275.3732143), published in the Proceedings of the 2025 ACM Conference on Fairness, Accountability and Transparency (FAccT'25).
+
+This software is part of MAI-BIAS; a low-code toolkit for fairness analysis and mitigation, with an accompanying suite of coding tools. Our ecosystem operates in multidimensional and multi-attribute settings, and across multiple data modalities (like tabular data, images, text, graphs). Learn more [**here**](https://mammoth-eu.github.io/mammoth-commons/index.html).
+
+
+## 👥 Who is this for?
+- **ML engineers and data scientists** building or evaluating models in Python.
+- **Researchers** studying fairness in rankings.
+- **Policymakers and analysts** who want reproducible evidence for decision‑making. Consider exploring our user-friendly/no-code visualization tool to understand how hyperFA*IR works [**here**](https://vis.csh.ac.at/ranks-of-disparity/index.html).
+
+## ✨ About
 
 **hyperFA*IR** is a rigorous framework for researchers and practitioners who care about fairness in ranked outcomes. Leveraging hypergeometric tests and Monte Carlo methods, hyperFA*IR enables you to rigorously assess, visualize, and enforce fairness in any ranking scenario with a finite candidate pool.
 
 Whether you are working with admissions, hiring, recommendations, or any ranked selection process, hyperFA*IR provides the tools you need to ensure equitable representation and transparency.
+
+## 🚀 Highlights
+- 📈 Fairness reports for ranking assessments
+- ⚖️ Binary attribute (multi-attribute forthcoming)
 
 ## Table of Contents
 
@@ -163,3 +179,18 @@ For `n=2000` (last point), the difference is substantial: the elapsed time for Z
 ## Bugs and Feedback<a name="bugs">
 
 Please report any bugs that you find or any other feedback directly to [cartiervandissel@csh.ac.at](mailto:cartiervandissel@csh.ac.at). We welcome all changes, big or small. Thank you!
+
+## 📜 Attributions
+```bibtex
+@inproceedings{cartier2025hyperfa,
+  title={hyperFA* IR: A hypergeometric approach to fair rankings with finite candidate pool},
+  author={Cartier van Dissel, Mauritz N and Martin-Gutierrez, Samuel and Esp{\'\i}n-Noboa, Lisette and Jaramillo, Ana Mar{\'\i}a and Karimi, Fariba},
+  booktitle={Proceedings of the 2025 ACM Conference on Fairness, Accountability, and Transparency},
+  pages={2112--2126},
+  year={2025}
+  }
+```
+- **Project:** [MAMMOth](https://mammoth-ai.eu/)
+- **Maintainer:** Mauritz Cartier van Dissel (cartiervandissel@csh.ac.at)
+- **License:** Apache 2.0
+- **Contributors:** Samuel Martin-Gutierrez
