@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="logo.png" alt="Package Logo" width="100" style="vertical-align: middle; margin-right: 10px;"/>
+  <img src="logo.png" alt="Package Logo" width="200" style="vertical-align: middle; margin-right: 10px;"/>
 </p>
 
 # hyperFA*IR: A Python library for generating, evaluating, and improving rankings under fairness constraints.
@@ -13,7 +13,7 @@
 
 This package is tied to the paper [**hyperFA*IR: A hypergeometric approach to fair rankings with finite candidate pool**](https://dl.acm.org/doi/10.1145/3715275.3732143), published in the Proceedings of the 2025 ACM Conference on Fairness, Accountability and Transparency (FAccT'25).
 
-This software is part of MAI-BIAS; a low-code toolkit for fairness analysis and mitigation, with an accompanying suite of coding tools. Our ecosystem operates in multidimensional and multi-attribute settings, and across multiple data modalities (like tabular data, images, text, graphs). Learn more [**here**](https://mammoth-eu.github.io/mammoth-commons/index.html).
+This software is part of MAI-BIAS; a low-code toolkit for fairness analysis and mitigation, with an accompanying suite of coding tools. Our ecosystem operates in multidimensional, multi-attribute settings and across multiple data modalities (such as tabular data, images, text, and graphs). Learn more [**here**](https://mammoth-eu.github.io/mammoth-commons/index.html).
 
 
 ## 👥 Who is this for?
