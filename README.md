@@ -193,4 +193,4 @@ Please report any bugs that you find or any other feedback directly to [cartierv
 - **Project:** [MAMMOth](https://mammoth-ai.eu/)
 - **Maintainer:** Mauritz Cartier van Dissel (cartiervandissel@csh.ac.at)
 - **License:** Apache 2.0
-- **Contributors:** Samuel Martin-Gutierrez
+- **Contributors:** Ana Maria Jaramillo
